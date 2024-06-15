@@ -350,8 +350,6 @@ def absDiff(img1, img2, threshold = 30):
 
     return np.count_nonzero(thresh) > 0, diff
 
-
-
 def compareImage(img1, img2, threshold = 50, showDiff = False):
     img1 = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
     img2 = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
@@ -404,7 +402,7 @@ def isAvailableBuySlot():
         return True
     
     single_click(TARGET_WINDOW , 576, ORDER_ROW_POS[i] + 8)
-    time.sleep(0.2)
+    time.sleep(0.1)
 
     currentPrice = capture_window_region(TARGET_WINDOW, 930, 500, 106, 30)
 
@@ -434,7 +432,7 @@ def isAvailableSellSlot():
     secondPic = capture_window_region(TARGET_WINDOW,  770, 444, 264, 28)
     # saveImage(secondPic, 'a2.png')
 
-    res = compareImage(imageToArr(firstPic), imageToArr(secondPic), threshold=120)
+    res = compareImage(imageToArr(firstPic), imageToArr(secondPic), threshold=100)
     return res
 
 
@@ -445,14 +443,12 @@ BORDER_WIDTH, TITLE_BAR_HEIGHT = get_window_offsets(TARGET_WINDOW)
 
 BUY_MODAL_IMAGE = cv2.imread('buy_modal.png') 
 SELL_MODAL_IMAGE = cv2.imread('sell_modal.png') 
+CLOSE_MODAL_IMAGE = cv2.imread('close_modal.png') 
 RESET_MODAL_IMAGE = cv2.imread('reset_modal.png') 
 HYPHEN_IMAGE = cv2.imread('hyphen.png') 
 CANCEL_MODAL_IMAGE = cv2.imread('cancel_modal.png') 
 
-
-
 ORDER_ROW_POS = [377, 361, 344, 327, 310, 294, 277, 260]
-
 
 def updateBuy():
     # Click vào giá
@@ -463,8 +459,6 @@ def updateBuy():
 
     # Lưu kết quả
     saveImage(capture_window(TARGET_WINDOW), f'updated_{time.time()}.png')
-
-
 
 
 def buy(priceType='max', quantity=1):
@@ -565,45 +559,6 @@ def runOnTransactions_v2(action, typeModal='buy',numRow=3, resetTime= None):
 
         i+=1
 
-def runOnFavorites_v2(action, numRow=3):
-    # runOnFavorites(limitRow=4, check=False)
-    # runOnTransactions(limitRow=4)
-
-    # numRow = 5
-    # prevPlayer = None
-    # prevPrice = [False] * numRow
-
-    # i = 0
-    # while True:
-    #     if i == numRow:
-    #         i = 0
-        
-    #     currentPlayer, error = updateCurrentPlayerBySwitchTab(i, prevPlayer)
-    #     if error:
-    #         continue
-
-
-    #     single_click(TARGET_WINDOW, 886, 671)
-    #     isOpened = waitModal()
-    #     if not isOpened:
-    #         continue
-
-
-    #     # ACTION
-    #     currentPrice = buyMaxOnFavorite(prevPrice[i])
-
-    
-    #     prevPlayer = currentPlayer
-    #     prevPrice[i] = currentPrice
-    #     i+=1
-
-
-    #     # Tắt modal
-    #     single_click(TARGET_WINDOW, 971, 587)
-    #     waitModal(status='close')
-    pass
-
-
 def buyMaxOnTransaction(prevPrice):
     resetFlag = False
 
@@ -615,8 +570,8 @@ def buyMaxOnTransaction(prevPrice):
             isAvailable = isAvailableBuySlot()
             print(f'còn slot' if isAvailable else f'hết slot')
             if isAvailable:
-                # update()
-                print('cap nhat')
+                updateBuy()
+                print('cap nhat thanh cong')
             else:
                 saveImage(capture_window(TARGET_WINDOW), f'failed_{time.time()}.png')
             
@@ -629,8 +584,8 @@ def buyMaxOnTransaction(prevPrice):
         isAvailable = isAvailableBuySlot()
         print(f'còn slot' if isAvailable else f'hết slot')
         if isAvailable:
-            # update()
-            print('cap nhat')
+            updateBuy()
+            print('cap nhat thanh cong')
 
             resetFlag = True
 
@@ -740,11 +695,198 @@ def waitForChangePlayer(prevPlayer, timeout=10):
 #             return i
 
 
+# def getStatusModal(typeModal = 'buy'):
+#     if typeModal == 'buy':
+#         return 'close' if compareImage(BUY_MODAL_IMAGE, imageToArr(capture_window_region(TARGET_WINDOW, 847, 257, 27, 17)), threshold=30, showDiff=False) else 'open'
+#     else:
+#         return 'close' if compareImage(SELL_MODAL_IMAGE, imageToArr(capture_window_region(TARGET_WINDOW,  848, 290, 27, 17)), threshold=30, showDiff=False) else 'open'
+
+ 
+def waitModal_v3(status='open', timeout = 20):
+    start = time.time()
+
+    while True:
+        if time.time() - start >= timeout:
+            return False
+        
+        if status == 'open':
+            if not compareImage(BUY_MODAL_IMAGE, imageToArr(capture_window_region(TARGET_WINDOW, 847, 257, 27, 17)), threshold=30, showDiff=False):
+                return 'buy'
+            if not compareImage(SELL_MODAL_IMAGE, imageToArr(capture_window_region(TARGET_WINDOW,  848, 290, 27, 17)), threshold=30, showDiff=False):
+                return 'sell'
+            
+        elif status == 'close':
+            if not compareImage(CLOSE_MODAL_IMAGE, imageToArr(capture_window_region(TARGET_WINDOW, 636, 142, 20, 13)), threshold=30, showDiff=False):
+                return True
+            
+    # time.sleep(0.25)
+
+    return True
+
+def findPlayerIndex(playerName, players):
+    for i in range(len(players)):
+        if players[i]:
+            if not compareImage(imageToArr(players[i]['name']), playerName, threshold=100):
+                return i
+    return -1
+
+
+def buyMaxOnTransaction_v3(prevPrice):
+    resetFlag = False
+
+    currentPrice = capture_window_region(TARGET_WINDOW, 962, 281, 77, 54)
+
+    if prevPrice:
+        if compareImage(imageToArr(prevPrice), imageToArr(currentPrice), threshold=100, showDiff=False):
+        # if True:
+            isAvailable = isAvailableBuySlot()
+            print(f'còn slot' if isAvailable else f'hết slot')
+            if isAvailable:
+                updateBuy()
+                print('Cập nhật thành công !!')
+            else:
+                saveImage(capture_window(TARGET_WINDOW), f'failed_{time.time()}.png')
+            
+            resetFlag = True
+
+        else:
+            print("Chưa reset giá")
+    
+    else:
+        isAvailable = isAvailableBuySlot()
+        print(f'còn slot' if isAvailable else f'hết slot')
+        if isAvailable:
+            updateBuy()
+            print('Cập nhật thành công !!')
+
+            resetFlag = True
+
+    
+    return currentPrice, resetFlag
+
+
+def sellMinOnTransaction_v3(prevPrice):
+    resetFlag = False
+
+    currentPrice = capture_window_region(TARGET_WINDOW, 962, 315, 77, 54)
+
+    if prevPrice:
+        if compareImage(imageToArr(prevPrice), imageToArr(currentPrice), threshold=100, showDiff=False):
+        # if True:
+            isAvailable = isAvailableSellSlot()
+            print(f'còn slot' if isAvailable else f'hết slot')
+            if isAvailable:
+                single_click(TARGET_WINDOW, 773, 619)
+                print('Cập nhật thành công !!')
+            else:
+                saveImage(capture_window(TARGET_WINDOW), f'failed_{time.time()}.png')
+            
+            resetFlag = True
+
+        else:
+            print("Chưa reset giá")
+    
+    else:
+        isAvailable = isAvailableSellSlot()
+        print(f'còn slot' if isAvailable else f'hết slot')
+        if isAvailable:
+            single_click(TARGET_WINDOW, 773, 619)
+            print('Cập nhật thành công !!')
+
+            resetFlag = True
+
+    return currentPrice, resetFlag
+
+
+def runOnTransactions_v3(numRow=2, resetTime=None):
+    players = []
+    countdown = time.time()
+
+    i = 0
+    while True:
+        if time.time() - countdown >= 180:
+            time.sleep(10)
+            countdown = time.time()
+
+        # Giới hạn cầu thủ
+        if i == numRow:
+            i = 0
+            os.system('cls')
+
+        # Kiểm tra tới giờ reset chưa ?
+
+        # Kiểm tra trong đợt reset này, cầu thủ đã reset chưa ?
+
+        # Mở modal và chờ
+        single_click(TARGET_WINDOW, 1000, 212 + i * 42, hover=True)
+        modalType = waitModal_v3(status='open')
+
+        if not modalType:
+            saveImage(capture_window(TARGET_WINDOW), f'timeout_{time.time()}.png')
+            # error = checkSpamError()            
+            # if error:
+            #     time.sleep(60)
+            continue
+        
+
+        # Tìm cầu thủ trong danh sách
+        playerName = imageToArr(capture_window_region(TARGET_WINDOW, 300, 345, 77, 14)) 
+        playerIndex = findPlayerIndex(playerName, players)
+        # print(f"Cầu thủ được lưu tại index: {playerIndex}")
+        if playerIndex == -1:
+            players.append({'name': playerName, 'prevPrice': False, 'isReset': False})
+            playerIndex = len(players) - 1
+        
+
+        # Thực hiện chức năng chính và đóng modal
+        if  modalType == 'buy':
+            print(f"💵 Mua cầu thủ #{i+1}")
+            players[playerIndex]['prevPrice'], players[playerIndex]['isReset'] = buyMaxOnTransaction_v3(players[playerIndex]['prevPrice'])
+
+            if not players[playerIndex]['isReset']:
+                single_click(TARGET_WINDOW, 971, 587)
+        else:
+            print(f"🤑 Bán cầu thủ #{i+1}")
+            players[playerIndex]['prevPrice'], players[playerIndex]['isReset'] = sellMinOnTransaction_v3(players[playerIndex]['prevPrice'])
+
+            if not players[playerIndex]['isReset']:
+                single_click(TARGET_WINDOW,  908, 617)
+
+           
+        # Chờ đóng modal
+        isClosed = waitModal_v3(status='close')
+        if not isClosed:
+            saveImage(capture_window(TARGET_WINDOW), f'timeout_{time.time()}.png')
+            if modalType == 'buy':
+                if not players[playerIndex]['isReset']:
+                    single_click(TARGET_WINDOW, 971, 587)
+            else:
+                if not players[playerIndex]['isReset']:
+                    single_click(TARGET_WINDOW,  908, 617)
+            waitModal_v3(status='close')
+
+        # time.sleep(0.5)
+        i+=1
+
+
+
+
+
+
+
 def main():
     # resetTime = [toResetTime("Chẵn 05 - Chẵn 25"), toResetTime("Chẵn 41 - Lẻ 01"), toResetTime("Chẵn 11 - Chẵn 31"), toResetTime("Chẵn 18 - Chẵn 38"), toResetTime("Chẵn 06 - Chẵn 26")]
     # runOnTransactions_v2(buyMaxOnTransaction, 'buy', len(resetTime), resetTime)
 
-    runOnTransactions_v2(sellMinOnTransaction, 'sell', 1, False)
+    # runOnTransactions_v2(sellMinOnTransaction, 'sell', 1, False)
+
+
+    # playerName = capture_window_region(TARGET_WINDOW, 300, 345, 77, 14)
+
+    # closeModal = capture_window_region(TARGET_WINDOW, 636, 142, 20, 13)
+    # saveImage(closeModal, 'close_modal.png')
+
+    res = runOnTransactions_v3()
 
 
 if __name__ == '__main__':

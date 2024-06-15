@@ -20,7 +20,7 @@ def get_mouse_relative_coordinates(window_title):
             # Tính toán vị trí tương đối
             relative_x = mouse_x - window_info[0]
             relative_y = mouse_y - window_info[1]
-
+            
             if keyboard.is_pressed('F1'):
                 # In vị trí tương đối
                 print(f"TUYỆT ĐỐI: {mouse_x}, {mouse_y}")
