@@ -424,7 +424,7 @@ def isAvailableSellSlot():
 
     # o gia
     firstPic = capture_window_region(TARGET_WINDOW,  770, 444, 264, 28)
-    saveImage(firstPic, 'a1.png')
+    # saveImage(firstPic, 'a1.png')
 
     # click gia min hien tai
     single_click(TARGET_WINDOW, 1020, 330)
@@ -432,7 +432,7 @@ def isAvailableSellSlot():
 
     # o gia
     secondPic = capture_window_region(TARGET_WINDOW,  770, 444, 264, 28)
-    saveImage(secondPic, 'a2.png')
+    # saveImage(secondPic, 'a2.png')
 
     res = compareImage(imageToArr(firstPic), imageToArr(secondPic), threshold=120)
     return res
