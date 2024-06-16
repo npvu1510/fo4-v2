@@ -447,29 +447,5 @@ def main():
     pass
 
 
-
-
 if __name__ == '__main__':
     main()
-
-
-# CAPTURE
-# HYPHEN 576, 377, 80, 16
-# 2 GIO (MUA) 847, 257, 27, 17
-# 2 GIO (BAN) 848, 290, 27, 17
-# TOTAL 930, 500, 106, 30
-
-# CLICK
-# MUA CAU THU 886, 671
-# MUA CAU THU (MODAL) 831, 586
-# SO LUONG MUA 1004, 453
-
-# ĐĂNG KÝ LẠI single_click(TARGET_WINDOW, 1000, 212 + i * 42, hover=True)
-
-# HUY 971, 587
-
-# MAXPRICE (BUY MODAL) 1031, 322
-
-# CAU THU YEU THICH 530, 148
-# DS CUA BAN 669, 149
-# DANH SACH YEU THICH 269, 205 (cach nhau y = 32)
