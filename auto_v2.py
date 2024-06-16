@@ -746,6 +746,7 @@ def buyMaxOnTransaction_v3(prevPrice):
                 print('Cập nhật thành công !!')
             else:
                 saveImage(capture_window(TARGET_WINDOW), f'failed_{time.time()}.png')
+                single_click(TARGET_WINDOW, 971, 587)
             
             resetFlag = True
 
@@ -780,6 +781,7 @@ def sellMinOnTransaction_v3(prevPrice):
                 print('Cập nhật thành công !!')
             else:
                 saveImage(capture_window(TARGET_WINDOW), f'failed_{time.time()}.png')
+                single_click(TARGET_WINDOW,  908, 617)
             
             resetFlag = True
 
@@ -800,13 +802,13 @@ def sellMinOnTransaction_v3(prevPrice):
 
 def runOnTransactions_v3(numRow=2, resetTime=None):
     players = []
-    countdown = time.time()
+    # countdown = time.time()
 
     i = 0
     while True:
-        if time.time() - countdown >= 180:
-            time.sleep(10)
-            countdown = time.time()
+        # if time.time() - countdown >= 180:
+        #     time.sleep(10)
+        #     countdown = time.time()
 
         # Giới hạn cầu thủ
         if i == numRow:
@@ -878,15 +880,12 @@ def main():
     # resetTime = [toResetTime("Chẵn 05 - Chẵn 25"), toResetTime("Chẵn 41 - Lẻ 01"), toResetTime("Chẵn 11 - Chẵn 31"), toResetTime("Chẵn 18 - Chẵn 38"), toResetTime("Chẵn 06 - Chẵn 26")]
     # runOnTransactions_v2(buyMaxOnTransaction, 'buy', len(resetTime), resetTime)
 
-    # runOnTransactions_v2(sellMinOnTransaction, 'sell', 1, False)
-
-
     # playerName = capture_window_region(TARGET_WINDOW, 300, 345, 77, 14)
 
     # closeModal = capture_window_region(TARGET_WINDOW, 636, 142, 20, 13)
     # saveImage(closeModal, 'close_modal.png')
 
-    res = runOnTransactions_v3()
+    runOnTransactions_v3(numRow=3)
 
 
 if __name__ == '__main__':
