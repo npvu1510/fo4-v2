@@ -207,6 +207,7 @@ def buyMaxOnTransaction_v3(prevPrice):
         
         if compareImage(imageToArr(prevPrice), imageToArr(currentPrice), threshold=100, showDiff=False):
         # if True:
+            
             isAvailable = isAvailableBuySlot()
             print(f'còn slot' if isAvailable else f'hết slot')
             if isAvailable:
@@ -250,6 +251,9 @@ def sellMinOnTransaction_v3(prevPrice):
         #     exit()
         if compareImage(imageToArr(prevPrice), imageToArr(currentPrice), threshold=100, showDiff=False):
         # if True:
+            single_click(TARGET_WINDOW, 773, 619)
+            saveImage(capture_window(TARGET_WINDOW), f'updated_{time.time()}.png')
+            return currentPrice, resetFlag
             isAvailable = isAvailableSellSlot()
             print(f'còn slot' if isAvailable else f'hết slot')
             if isAvailable:
@@ -265,6 +269,8 @@ def sellMinOnTransaction_v3(prevPrice):
             print("Chưa reset giá")
     
     else:
+        # single_click(TARGET_WINDOW, 773, 619)
+        # return currentPrice, resetFlag
         isAvailable = isAvailableSellSlot()
         print(f'còn slot' if isAvailable else f'hết slot')
         if isAvailable:
@@ -347,8 +353,15 @@ def runOnTransactions_v3(numRow=4, resetTime=None):
     prevTransactions = False
     transactions = []
 
+    start = time.time()
     i = 0
     while True:
+        time.sleep(0.25)
+        if time.time() - start > 300:
+            time.sleep(15)
+            start = time.time()
+            continue
+
         # GIỚI HẠN SỐ LƯỢNG GIAO DỊCH
         if i == numRow:
             i = 0
@@ -434,7 +447,7 @@ def runOnTransactions_v3(numRow=4, resetTime=None):
 def main():
     # resetTime = [toResetTime("Chẵn 05 - Chẵn 25"), toResetTime("Chẵn 41 - Lẻ 01"), toResetTime("Chẵn 11 - Chẵn 31"), toResetTime("Chẵn 18 - Chẵn 38"), toResetTime("Chẵn 06 - Chẵn 26")]
     # runOnTransactions_v2(buyMaxOnTransaction, 'buy', len(resetTime), resetTime)
-    runOnTransactions_v3()
+    runOnTransactions_v3(numRow=2)
 
     # NEW TEMPLATE
     # captureTemplate([896, 312, 142, 20], 'max_price.png')
